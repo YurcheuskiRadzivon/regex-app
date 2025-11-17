@@ -7,7 +7,11 @@ import (
 	"strings"
 )
 
-type RegexService struct{}
+type RegexService struct {
+	matcher   matcher
+	parser    parser
+	validator validator
+}
 
 func NewRegexService() *RegexService {
 	return &RegexService{}
@@ -46,13 +50,13 @@ func (s *RegexService) Process(pattern, text string) ProcessResult {
 		return res
 	}
 
-	if err := ValidatePattern(pattern); err != nil {
+	if err := s.validator.ValidatePattern(pattern); err != nil {
 		res.ErrorMessage = "Выражение не является корректным регулярным: " + err.Error()
 		res.ValidationError = true
 		return res
 	}
 
-	ast, err := Parse(pattern)
+	ast, err := s.parser.Parse(pattern)
 	if err != nil {
 		res.ErrorMessage = "Ошибка при разборе регулярного выражения: " + err.Error()
 		res.ValidationError = true
@@ -60,7 +64,7 @@ func (s *RegexService) Process(pattern, text string) ProcessResult {
 	}
 	res.ParseOk = true
 
-	matchRes := RunMatch(ast, text)
+	matchRes := s.matcher.RunMatch(ast, text)
 	res.Matches = matchRes.Matches
 	res.TimedOut = matchRes.TimedOut
 	res.Highlighted = highlightMatches(text, matchRes.Matches)
@@ -81,7 +85,6 @@ func highlightMatches(text string, matches []Match) string {
 
 	runes := []rune(text)
 
-	// нормализуем и копируем интервалы
 	type seg struct{ s, e int }
 	segs := make([]seg, 0, len(matches))
 	for _, m := range matches {
@@ -124,7 +127,6 @@ func highlightMatches(text string, matches []Match) string {
 		}
 	}
 
-	// собираем строку с <mark>
 	var b strings.Builder
 	cur := 0
 	for _, m := range merged {

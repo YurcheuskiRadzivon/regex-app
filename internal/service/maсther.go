@@ -6,8 +6,8 @@ type matcher struct {
 	steps int
 }
 
-func RunMatch(root *Node, text string) MatchResult {
-	m := &matcher{}
+func (m *matcher) RunMatch(root *Node, text string) MatchResult {
+	m = &matcher{}
 	runes := []rune(text)
 	var matches []Match
 
@@ -126,14 +126,14 @@ func countReps(node *Node, runes []rune, start, end int) int {
 	cnt := 0
 	pos := start
 	for pos < end {
-		// пробуем один Inner
 		m := &matcher{}
 		ends := m.matchNode(node.Inner, runes, pos)
 		if len(ends) == 0 {
 			break
 		}
-		// берём минимальный end
+
 		minEnd := ends[0]
+
 		for _, e := range ends {
 			if e < minEnd {
 				minEnd = e

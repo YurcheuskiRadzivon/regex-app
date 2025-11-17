@@ -9,20 +9,20 @@ var (
 	ErrEmptyPattern = errors.New("пустое регулярное выражение")
 )
 
-func ValidatePattern(pattern string) error {
+type validator struct{}
+
+func (v *validator) ValidatePattern(pattern string) error {
 	if pattern == "" {
 		return ErrEmptyPattern
 	}
 
 	runes := []rune(pattern)
 
-	// стеки для (), [], {}
 	var stack []rune
 
 	for i := 0; i < len(runes); i++ {
 		ch := runes[i]
 
-		// экранирование
 		if ch == '\\' {
 			if i == len(runes)-1 {
 				return fmt.Errorf("экранирование в конце строки")
@@ -62,20 +62,14 @@ func ValidatePattern(pattern string) error {
 		}
 	}
 
-	if err := validateCharClasses(runes); err != nil {
+	if err := v.validateCharClasses(runes); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func matchingBrackets(open, close rune) bool {
-	return (open == '(' && close == ')') ||
-		(open == '[' && close == ']') ||
-		(open == '{' && close == '}')
-}
-
-func validateCharClasses(runes []rune) error {
+func (v *validator) validateCharClasses(runes []rune) error {
 	for i := 0; i < len(runes); i++ {
 		if runes[i] == '\\' {
 			i++
@@ -118,4 +112,10 @@ func validateCharClasses(runes []rune) error {
 		}
 	}
 	return nil
+}
+
+func matchingBrackets(open, close rune) bool {
+	return (open == '(' && close == ')') ||
+		(open == '[' && close == ']') ||
+		(open == '{' && close == '}')
 }
