@@ -10,37 +10,32 @@ const (
 	NodeAlternation
 	NodeGroup
 	NodeQuantifier
-	NodeSpecialClass // \d, \w, \s
+	NodeSpecialClass
 )
 
 type CharClass struct {
 	Negate   bool
-	Ranges   [][2]rune // от–до
+	Ranges   [][2]rune
 	Literals []rune
 }
 
 type Quantifier struct {
 	Min    int
-	Max    int // -1 = бесконечность
+	Max    int
 	Greedy bool
 }
 
 type Node struct {
 	Kind NodeKind
 
-	// Literal
 	Literal rune
 
-	// SpecialClass: 'd','w','s'
 	Special rune
 
-	// CharClass
 	Class *CharClass
 
-	// Sequence / Alternation / Group
 	Children []*Node
 
-	// Quantifier
 	Quant *Quantifier
 	Inner *Node
 }

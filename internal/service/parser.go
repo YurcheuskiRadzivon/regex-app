@@ -63,6 +63,7 @@ func (p *parser) parseAlternation() (*Node, error) {
 	}, nil
 }
 
+// concatenation := (quantified)*
 func (p *parser) parseConcatenation() (*Node, error) {
 	var nodes []*Node
 
@@ -79,6 +80,7 @@ func (p *parser) parseConcatenation() (*Node, error) {
 	}
 
 	if len(nodes) == 0 {
+		// пустая последовательность — допустимо как пустая группа
 		return &Node{Kind: NodeSequence, Children: nil}, nil
 	}
 	if len(nodes) == 1 {
@@ -90,6 +92,7 @@ func (p *parser) parseConcatenation() (*Node, error) {
 	}, nil
 }
 
+// quantified := atom ('*' | '+' | '?')?
 func (p *parser) parseQuantified() (*Node, error) {
 	atom, err := p.parseAtom()
 	if err != nil {
@@ -120,6 +123,7 @@ func (p *parser) parseQuantified() (*Node, error) {
 	}, nil
 }
 
+// atom := literal | '.' | group | charClass | escaped
 func (p *parser) parseAtom() (*Node, error) {
 	if p.eof() {
 		return nil, fmt.Errorf("ожидался атом, но строка закончилась")
@@ -157,6 +161,7 @@ func (p *parser) parseEscape() (*Node, error) {
 	case 'd', 'w', 's':
 		return &Node{Kind: NodeSpecialClass, Special: ch}, nil
 	default:
+		// любой другой — просто литерал
 		return &Node{Kind: NodeLiteral, Literal: ch}, nil
 	}
 }
@@ -184,6 +189,7 @@ func (p *parser) parseCharClass() (*Node, error) {
 			continue
 		}
 		if ch == '-' && hasLast && p.peek() != ']' {
+			// диапазон last - next
 			if p.eof() {
 				return nil, fmt.Errorf("незавершённый диапазон в []")
 			}
@@ -200,7 +206,7 @@ func (p *parser) parseCharClass() (*Node, error) {
 	if p.eof() || p.peek() != ']' {
 		return nil, fmt.Errorf("незакрытый класс символов []")
 	}
-	p.next()
+	p.next() // ']'
 
 	return &Node{
 		Kind:  NodeCharClass,

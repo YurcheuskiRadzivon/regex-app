@@ -50,7 +50,6 @@ func ValidatePattern(pattern string) error {
 		return fmt.Errorf("незакрытые скобки")
 	}
 
-	// квантификаторы не в начале и не после | или (
 	for i, ch := range runes {
 		if ch == '*' || ch == '+' || ch == '?' {
 			if i == 0 {
@@ -63,7 +62,6 @@ func ValidatePattern(pattern string) error {
 		}
 	}
 
-	// проверка диапазонов в []
 	if err := validateCharClasses(runes); err != nil {
 		return err
 	}
@@ -100,7 +98,6 @@ func validateCharClasses(runes []rune) error {
 					ch = runes[i]
 				}
 				if hasPrev && ch == '-' && i+1 < len(runes) && runes[i+1] != ']' {
-					// диапазон prev - next
 					next := runes[i+1]
 					if next == '\\' {
 						if i+2 >= len(runes) {

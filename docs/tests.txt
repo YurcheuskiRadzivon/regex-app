@@ -1,0 +1,27 @@
+a | cat | a 
+abc | 123abc456 | abc 
+
+\d | a1b2c3 | 1,2,3 
+\d+ | abc123xyz | 123 
+\d* | 123abc456 | 123,,456 
+\w+ | my_var123 | my_var123 
+\s+ | one   two | (пробелы) 
+
+a* | aaab | aaa 
+a+ | baaa | aaa 
+a? | baaac | a,a,a 
+\d+ | 12 345 6789 | 12,345,6789 
+\w* | abc_123!!! | abc_123 
+\s? | a b | (пробел) 
+
+. | abc | a,b,c 
+a.c | a-c a_c a c | a-c,a_c 
+
+\d\d\d | abc123xyz | 123 
+\d+abc | 12abc34abc | 12abc,34abc 
+\w+\s\w+ | Hello world | Hello world
+[a-s] | Hello world | hello orld
+
+a|b | assadsadsfcsdcx | aaa
+
+[1-5][1-6] | 123abc456 |  "12" "23 "45" "56"

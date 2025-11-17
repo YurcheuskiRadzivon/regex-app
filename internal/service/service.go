@@ -27,6 +27,8 @@ type ProcessResult struct {
 var ErrEmptyText = errors.New("пустой текст для поиска")
 
 func (s *RegexService) Process(pattern, text string) ProcessResult {
+	pattern = strings.Trim(pattern, " ")
+
 	res := ProcessResult{
 		Pattern: pattern,
 		Text:    text,
@@ -37,6 +39,7 @@ func (s *RegexService) Process(pattern, text string) ProcessResult {
 		res.ValidationError = true
 		return res
 	}
+
 	if strings.TrimSpace(text) == "" {
 		res.ErrorMessage = "Текст для поиска не должен быть пустым."
 		res.ValidationError = true
@@ -78,6 +81,7 @@ func highlightMatches(text string, matches []Match) string {
 
 	runes := []rune(text)
 
+	// нормализуем и копируем интервалы
 	type seg struct{ s, e int }
 	segs := make([]seg, 0, len(matches))
 	for _, m := range matches {
@@ -120,6 +124,7 @@ func highlightMatches(text string, matches []Match) string {
 		}
 	}
 
+	// собираем строку с <mark>
 	var b strings.Builder
 	cur := 0
 	for _, m := range merged {
